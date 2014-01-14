@@ -1,5 +1,7 @@
 PHP Riot API 
+
 Kenneth Vuong (http://kennethvuong.com)
+
 https://github.com/kennzoid/leagueoftritons
 
 
