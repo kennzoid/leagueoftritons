@@ -6,13 +6,17 @@
   $limitCounter = 0;
   $instanceCounter = 0;
 
-  // update just the data
+  // UPDATE THE RANKS FOR EVERY PLAYER
+  
+  // Get list of players from SQL.
   $result = $mysqli->query("SELECT * FROM `players`");
-	 
+
+  // For each entry, run the function updateUser	 
   while($row = $result->fetch_array())
   {
 	updateUser($row['summoner_id'], $mysqli, $instances[$instanceCounter]);
 	
+	// Rate limiting
 	$limitCounter++;
 	if($limitCounter == 10)
 	{
@@ -20,7 +24,7 @@
 	  if($instanceCounter >= count($instances))
 	  { 
 	    $instanceCounter = 0; 
-		//sleep(5);
+		sleep(2);
 	  }
 	  $limitCounter = 0;	
 	}
@@ -28,6 +32,8 @@
   
   mysqli_close($mysqli);
   
+  
+  // This function calls the Riot API and updates their rank
   function updateUser($summoner_id, $mysqli, $instance)
   {
 	$rankStats = json_decode($instance->getLeague($summoner_id), true);
@@ -35,11 +41,15 @@
 
     if(!(is_numeric($rankStats)))
 	{
+	  if(array_key_exists($summoner_id, $rankStats))
       foreach($rankStats[$summoner_id]["entries"] as $value)
       {
+	// If a valid JSON with Solo Queue info is found, their score is calculated 
         if($value["playerOrTeamId"] == $summoner_id)
 		{
 		  $rankScore = 0;
+		  
+	  // Tiers are the first digit, from 1 - 6
       	  switch($value["tier"])
           {
             case "BRONZE":
@@ -62,6 +72,7 @@
 			break;
           }
 
+          // Divisions are the second digit, from 1 - 5
           switch($value["rank"])
           {
             case "V":
@@ -81,14 +92,24 @@
 			break;
           }
 
+          // League points are the last 3 digits
           $rankScore = $rankScore + $value["leaguePoints"];
 	    }
+	  }
+	  
+	  else
+	  {
+		$rankScore = 0;  
 	  }
 	}
 
     else
     {
-      $rankScore = 0;
+	  // if a 404 is returned, it's probably because they have no solo queue rating
+          $rankScore = 0;
+	  
+	  // if it's 429 or 503, it's the rate limit or API status, so we just don't update
+	  if($rankStats == 429 || $rankStats == 503) $rankScore = -1;
     }
 
     if($rankScore != -1)
