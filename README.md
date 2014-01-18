@@ -7,3 +7,5 @@ Uses Riot's API to grab the data. Stores ranks and placement via SQL.
 
 connection.php refers to the file that initiates a MySQLi connection.
 updateKeys.php and signupkey.php refer to files that contain the Riot API keys.
+
+The search bar uses: https://github.com/devbridge/jQuery-Autocomplete. Check it out!
