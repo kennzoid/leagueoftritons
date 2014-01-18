@@ -4,6 +4,9 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>League of Tritons Rankings</title>
 <link href="style.css" rel="stylesheet" type="text/css" />
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script type="text/javascript" src="jquery.autocomplete.js"></script>
+<script src="search2.js"></script>
 </head>
 
 <body>
@@ -20,24 +23,25 @@
         <a href="about.php" class="topLink">about /</a>
         <a href="help.php" class="topLink">help</a>        
       </div>
-    
+
       <form name="input" action="index.php" method="get">
-  	    <input name="name" type="text" class="searchbar" value="" maxlength="16" />
+  	    <input name="name" type="text" class="searchbar" value="" maxlength="16" autocomplete="off"/>
   	    <input type="submit" id="searchButton" value=""/>
       </form>
-    
-      <table border="1" cellspacing="0" cellpadding="0" class="ladderEntries">
+
+      <p class="topError">Season 4 has begun! The Season 3 ladder will be used until I adjust for Season 4 data.</p>
       
-	  <?php
+      <table border="1" cellspacing="0" cellpadding="0" class="ladderEntries">
+      <?php
         include('connection.php');
         
-        // INITIATE VALUES
-        $color = "#4a4a4a";
+		// INITIATE VALUES
+        $weight = "normal";
         $selectedSummoner = " ";
         $okgo = true;
         $midPage = 1;
 		
-	// CALCULATE TOTAL PLAYERS AND PAGES
+		// CALCULATE TOTAL PLAYERS AND PAGES
         $numPlayersArray = $mysqli->query("SELECT COUNT(*) FROM `players`")->fetch_array();
         $numPlayers = $numPlayersArray[0];
         $numPages = ceil($numPlayers/10);
@@ -45,13 +49,13 @@
         
         echo "<div class=\"numPlayers\">".$numPlayers;
         
-	// If not URL variables, just print the top 10
+		// If not URL variables, just print the top 10
         if(empty($_GET))
         {
           $ordered = $mysqli->query("SELECT * FROM `players` ORDER BY `place` ASC LIMIT 10");
         }
         
-	// If there is a name specified, calculate the page they're on and display that
+		// If there is a name specified, calculate the page they're on and display that
         else if(!empty($_GET["name"]))
         {
           $searchSummoner = $_GET["name"];
@@ -84,32 +88,32 @@
           }
         }
         
-	// If it's not a summoner name, but a page number that is provided, just select that page
+		// If it's not a summoner name, but a page number that is provided, just select that page
         else if(!empty($_GET["page"]))
         {
           $midPage = $_GET["page"];
           $ordered = $mysqli->query("SELECT * FROM `players` ORDER BY `index` ASC LIMIT 10 OFFSET ".(($midPage-1)*10));
         }
         
-	// Output the selected entries
+		// Output the selected entries
         if($okgo)
         while($entry = $ordered->fetch_array())
         {
           $rankText = $entry['place'];
           $summonerText = $entry['summoner_name'];
           
-	  // Color selected summoner red
+		  // Color selected summoner red
           if($selectedSummoner == $summonerText)
           {
-            $color = "red";	
+            $weight = "bold";	
           }
           
           else
           {
-            $color = "#4a4a4a";	
+            $weight = "normal";	
           }
         
-	  // Parse their rank score if it's not 0 or -1
+		  // Parse their rank score if it's not 0 or -1
           if($entry['rank'] != 0 && $entry['rank'] != -1)
           {
             switch(substr($entry['rank'], 0, 1))
@@ -165,7 +169,7 @@
             }
           }
           
-	  // 0 = Not Ranked, -1 = Some Error
+		  // 0 = Not Ranked, -1 = Some Error
           else
           {		
             if($entry['rank'] == 0)
@@ -183,11 +187,11 @@
             }
           }
           
-	  // The actual HTML rows 
+		  // The actual HTML rows 
           echo "<tr class=\"ladderRow\">";
-          echo "<td width=\"144\" class=\"rankText\" style=\"color:".$color."\">".$rankText."</td>";
-          echo "<td width=\"436\" class=\"summonerText\" style=\"color:".$color."\">".$summonerText."</td>";
-          echo "<td width=\"207\" class=\"leagueText\" style=\"color:".$color."\">";
+          echo "<td width=\"144\" class=\"rankText\" style=\"Font-weight:".$weight."\">".$rankText."</td>";
+          echo "<td width=\"436\" class=\"summonerText\" style=\"Font-weight:".$weight."\">".$summonerText."</td>";
+          echo "<td width=\"207\" class=\"leagueText\" style=\"Font-weight:".$weight."\">";
           echo "<p class=\"tierText\">".$tierText." ".$divText."</p>";
           echo "<p class=\"divText\">".$lpText." League Points</p>";
           if($printedCount < 9) echo "<img src=\"images/divider.png\" class=\"divider\"/>";
@@ -201,9 +205,9 @@
         for($i = $printedCount; $i<11; $i++)
         {
           echo "<tr class=\"ladderRow\">";
-          echo "<td width=\"144\" class=\"rankText\" style=\"color:".$color."\"></td>";
-          echo "<td width=\"436\" class=\"summonerText\" style=\"color:".$color."\"></td>";
-          echo "<td width=\"207\" class=\"leagueText\" style=\"color:".$color."\">";
+          echo "<td width=\"144\" class=\"rankText\"></td>";
+          echo "<td width=\"436\" class=\"summonerText\"></td>";
+          echo "<td width=\"207\" class=\"leagueText\">";
           echo "<p class=\"tierText\"></p>";
           echo "<p class=\"divText\"></p>";
           echo "</td>";
@@ -211,7 +215,7 @@
         }
         echo "</table>";
         
-        // DRAWING THE PAGE LINKS AT THE BOTTOM  
+		// DRAWING THE PAGE LINKS AT THE BOTTOM  
         echo "<div class=\"pageLinks\">";
         
         // prev/first
@@ -221,7 +225,7 @@
           echo "<a href=\"index.php?page=".($midPage-1)."\" class=\"pageLink\"><</a>";
         }
         
-	// numbered pages
+		// numbered pages
         if(($midPage-2)>0)echo "<a href=\"index.php?page=".($midPage-2)."\" class=\"pageLink\">".($midPage-2)."</a>";
         if(($midPage-1)>0)echo "<a href=\"index.php?page=".($midPage-1)."\" class=\"pageLink\">".($midPage-1)."</a>";
         echo "<a style=\"font-weight:bold\" class=\"pageLink\">".$midPage."</a>";
