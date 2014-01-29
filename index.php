@@ -3,6 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>League of Tritons Rankings</title>
+<link href='http://fonts.googleapis.com/css?family=Lato:300,400,700' rel='stylesheet' type='text/css'>
 <link href="style.css" rel="stylesheet" type="text/css" />
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script type="text/javascript" src="jquery.autocomplete.js"></script>
@@ -14,7 +15,7 @@
   	<div class="header">
     	<p></p>  
   	</div>
-    
+
   	<div class="content">
       <div class="topLinks">
         <a href="index.php" class="topLink">home /</a>
@@ -29,7 +30,7 @@
   	    <input type="submit" id="searchButton" value=""/>
       </form>
 
-      <p class="topError">Season 4 has begun! The Season 3 ladder will be used until I adjust for Season 4 data.</p>
+      <p class="topError">Season 4 has begun! You can view the Season 3 ladder <a href="season3.php">here</a>.</p>
       
       <table border="1" cellspacing="0" cellpadding="0" class="ladderEntries">
       <?php
@@ -37,9 +38,11 @@
         
 		// INITIATE VALUES
         $weight = "normal";
+		$highlight = "";
         $selectedSummoner = " ";
         $okgo = true;
         $midPage = 1;
+		$bgImage = "0";
 		
 		// CALCULATE TOTAL PLAYERS AND PAGES
         $numPlayersArray = $mysqli->query("SELECT COUNT(*) FROM `players`")->fetch_array();
@@ -100,17 +103,21 @@
         while($entry = $ordered->fetch_array())
         {
           $rankText = $entry['place'];
-          $summonerText = $entry['summoner_name'];
+          $summonerText = $entry['true_name'];
+		  $bgImage = $entry['champ'];
           
 		  // Color selected summoner red
-          if($selectedSummoner == $summonerText)
+          if($selectedSummoner == $entry['summoner_name'])
           {
-            $weight = "bold";	
+            $weight = "400";
+			$highlight = "<div><a href=\"http://www.lolking.net/summoner/na/".$entry['summoner_id']."\">
+			              <img src=\"images\option.png\" class=\"selectedRow\"></a></div>";
           }
           
           else
           {
-            $weight = "normal";	
+            $weight = "300";
+			$highlight = "";	
           }
         
 		  // Parse their rank score if it's not 0 or -1
@@ -189,20 +196,23 @@
           
 		  // The actual HTML rows 
           echo "<tr class=\"ladderRow\">";
-          echo "<td width=\"144\" class=\"rankText\" style=\"Font-weight:".$weight."\">".$rankText."</td>";
-          echo "<td width=\"436\" class=\"summonerText\" style=\"Font-weight:".$weight."\">".$summonerText."</td>";
-          echo "<td width=\"207\" class=\"leagueText\" style=\"Font-weight:".$weight."\">";
+		  echo "";
+          echo "<td width=\"144\" class=\"rankText\" style=\"Font-weight:".$weight."; background-image: url(images/".$bgImage.".png);\">"
+		        .$rankText."".$highlight."</td>";
+          echo "<td width=\"436\" class=\"summonerText\" 
+		            style=\"Font-weight:".$weight."; background-image: url(images/".$bgImage.".png);\">
+					<a href=\"http://www.lolking.net/summoner/na/".$entry['summoner_id']."\">".$summonerText."</a></td>";
+          echo "<td width=\"207\" class=\"leagueText\" style=\"Font-weight:".$weight."; background-image: url(images/".$bgImage.".png);\">";
           echo "<p class=\"tierText\">".$tierText." ".$divText."</p>";
           echo "<p class=\"divText\">".$lpText." League Points</p>";
-          if($printedCount < 9) echo "<img src=\"images/divider.png\" class=\"divider\"/>";
           echo "</td>";
           echo "</tr>";
-          
+        
           $printedCount++;
         }
        
         // fill empty rows
-        for($i = $printedCount; $i<11; $i++)
+        for($i = $printedCount; $i<10; $i++)
         {
           echo "<tr class=\"ladderRow\">";
           echo "<td width=\"144\" class=\"rankText\"></td>";
