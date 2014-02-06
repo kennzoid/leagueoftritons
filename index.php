@@ -8,26 +8,27 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script type="text/javascript" src="jquery.autocomplete.js"></script>
 <script src="search2.js"></script>
+<script src="autoscroll.js"></script>
 </head>
 
 <body>
   <div class="container">
-  	<div class="header">
-    	<p></p>  
-  	</div>
+    <div class="header">
+      <p></p>  
+    </div>
 
-  	<div class="content">
+    <div class="content">
       <div class="topLinks">
-        <a href="index.php" class="topLink">home /</a>
-        <a href="signup.php" class="topLink">join /</a>
-        <a href="https://github.com/kennzoid/leagueoftritons" class="topLink">github /</a>
-        <a href="about.php" class="topLink">about /</a>
+        <a href="index.php" class="topLink">home </a>
+        <a href="signup.php" class="topLink">join </a>
+        <a href="https://github.com/kennzoid/leagueoftritons" class="topLink">github </a>
+        <a href="about.php" class="topLink">about </a>
         <a href="help.php" class="topLink">help</a>        
       </div>
 
       <form name="input" action="index.php" method="get">
-  	    <input name="name" type="text" class="searchbar" value="" maxlength="16" autocomplete="off"/>
-  	    <input type="submit" id="searchButton" value=""/>
+        <input name="name" type="text" class="searchbar" value="" maxlength="16" autocomplete="off"/>
+        <input type="submit" id="searchButton" value=""/>
       </form>
 
       <p class="topError">Season 4 has begun! You can view the Season 3 ladder <a href="season3.php">here</a>.</p>
@@ -36,15 +37,15 @@
       <?php
         include('connection.php');
         
-		// INITIATE VALUES
+    // INITIATE VALUES
         $weight = "normal";
-		$highlight = "";
+    $highlight = "";
         $selectedSummoner = " ";
         $okgo = true;
         $midPage = 1;
-		$bgImage = "0";
-		
-		// CALCULATE TOTAL PLAYERS AND PAGES
+    $bgImage = "0";
+    
+    // CALCULATE TOTAL PLAYERS AND PAGES
         $numPlayersArray = $mysqli->query("SELECT COUNT(*) FROM `players`")->fetch_array();
         $numPlayers = $numPlayersArray[0];
         $numPages = ceil($numPlayers/10);
@@ -52,13 +53,13 @@
         
         echo "<div class=\"numPlayers\">".$numPlayers;
         
-		// If not URL variables, just print the top 10
+    // If not URL variables, just print the top 10
         if(empty($_GET))
         {
           $ordered = $mysqli->query("SELECT * FROM `players` ORDER BY `place` ASC LIMIT 10");
         }
         
-		// If there is a name specified, calculate the page they're on and display that
+    // If there is a name specified, calculate the page they're on and display that
         else if(!empty($_GET["name"]))
         {
           $searchSummoner = $_GET["name"];
@@ -81,7 +82,7 @@
             echo "</tr>";
           }
           
-		  // If it is valid, then find their index and floor to select their page
+      // If it is valid, then find their index and floor to select their page
           else
           {
             $selectedArray = $selectedRow->fetch_array();
@@ -91,36 +92,36 @@
           }
         }
         
-		// If it's not a summoner name, but a page number that is provided, just select that page
+    // If it's not a summoner name, but a page number that is provided, just select that page
         else if(!empty($_GET["page"]))
         {
           $midPage = $_GET["page"];
           $ordered = $mysqli->query("SELECT * FROM `players` ORDER BY `index` ASC LIMIT 10 OFFSET ".(($midPage-1)*10));
         }
         
-		// Output the selected entries
+    // Output the selected entries
         if($okgo)
         while($entry = $ordered->fetch_array())
         {
           $rankText = $entry['place'];
           $summonerText = $entry['true_name'];
-		  $bgImage = $entry['champ'];
+      $bgImage = $entry['champ'];
           
-		  // Color selected summoner red
+      // Color selected summoner red
           if($selectedSummoner == $entry['summoner_name'])
           {
             $weight = "400";
-			$highlight = "<div><a href=\"http://www.lolking.net/summoner/na/".$entry['summoner_id']."\">
-			              <img src=\"images\option.png\" class=\"selectedRow\"></a></div>";
+      $highlight = "<div><a href=\"http://www.lolking.net/summoner/na/".$entry['summoner_id']."\">
+                    <img src=\"images\option.png\" class=\"selectedRow\"></a></div>";
           }
           
           else
           {
             $weight = "300";
-			$highlight = "";	
+      $highlight = "";  
           }
         
-		  // Parse their rank score if it's not 0 or -1
+      // Parse their rank score if it's not 0 or -1
           if($entry['rank'] != 0 && $entry['rank'] != -1)
           {
             switch(substr($entry['rank'], 0, 1))
@@ -176,9 +177,9 @@
             }
           }
           
-		  // 0 = Not Ranked, -1 = Some Error
+      // 0 = Not Ranked, -1 = Some Error
           else
-          {		
+          {    
             if($entry['rank'] == 0)
             {
               $divText = "RANKED";
@@ -194,14 +195,14 @@
             }
           }
           
-		  // The actual HTML rows 
+      // The actual HTML rows 
           echo "<tr class=\"ladderRow\">";
-		  echo "";
+      echo "";
           echo "<td width=\"144\" class=\"rankText\" style=\"Font-weight:".$weight."; background-image: url(images/".$bgImage.".png);\">"
-		        .$rankText."".$highlight."</td>";
+            .$rankText."".$highlight."</td>";
           echo "<td width=\"436\" class=\"summonerText\" 
-		            style=\"Font-weight:".$weight."; background-image: url(images/".$bgImage.".png);\">
-					<a href=\"http://www.lolking.net/summoner/na/".$entry['summoner_id']."\">".$summonerText."</a></td>";
+                style=\"Font-weight:".$weight."; background-image: url(images/".$bgImage.".png);\">
+          <a href=\"http://www.lolking.net/summoner/na/".$entry['summoner_id']."\">".$summonerText."</a></td>";
           echo "<td width=\"207\" class=\"leagueText\" style=\"Font-weight:".$weight."; background-image: url(images/".$bgImage.".png);\">";
           echo "<p class=\"tierText\">".$tierText." ".$divText."</p>";
           echo "<p class=\"divText\">".$lpText." League Points</p>";
@@ -225,7 +226,7 @@
         }
         echo "</table>";
         
-		// DRAWING THE PAGE LINKS AT THE BOTTOM  
+    // DRAWING THE PAGE LINKS AT THE BOTTOM  
         echo "<div class=\"pageLinks\">";
         
         // prev/first
@@ -235,7 +236,7 @@
           echo "<a href=\"index.php?page=".($midPage-1)."\" class=\"pageLink\"><</a>";
         }
         
-		// numbered pages
+    // numbered pages
         if(($midPage-2)>0)echo "<a href=\"index.php?page=".($midPage-2)."\" class=\"pageLink\">".($midPage-2)."</a>";
         if(($midPage-1)>0)echo "<a href=\"index.php?page=".($midPage-1)."\" class=\"pageLink\">".($midPage-1)."</a>";
         echo "<a style=\"font-weight:bold\" class=\"pageLink\">".$midPage."</a>";
@@ -251,13 +252,16 @@
         
         echo "</div>";
       ?>
-
-
-  	</div>
+        
+    <script>
+      $('body').scrollTo('div a img', {offsetTop : '450'});
+    </script>
+      
+    </div>
   
-  	<div class="footer">
-    	<p class="footText">This product is not endorsed, certified or otherwise approved in any way by Riot Games, Inc. or any of its affiliates.</p>
-  	</div>
+    <div class="footer">
+      <p class="footText">This product is not endorsed, certified or otherwise approved in any way by Riot Games, Inc. or any of its affiliates.</p>
+    </div>
   </div>
 </body>
 
